@@ -1,6 +1,6 @@
 [project]
 name = "n4e-py-adv"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = [
     {name = "ilya.palkanov",email = "ispalkanov@rt-dc.ru"}
