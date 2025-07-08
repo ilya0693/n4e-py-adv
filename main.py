@@ -1,5 +1,14 @@
+import io  # noqa: F401
 import os
 
-log_level = os.getenv("DEBUG_SUPER_LONG_DEBUG_SUPER_LONG_DEBUG_SUPER_LONG", "").lower() == "true"
+from scrapli import Scrapli
 
-print(f"{log_level=}")
+
+def concat(a: str, b: str) -> str:
+    f = "test"
+    return a + b
+
+
+if __name__ == "__main__":
+    print(concat("11", "222"))
+    print(f"hello")
