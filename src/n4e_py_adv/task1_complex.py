@@ -1,6 +1,5 @@
 from functools import lru_cache
-from typing import Any
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode
 
 NETBOX_URL = "https://demo.netbox.dev"
 
@@ -29,7 +28,7 @@ EXAMPLE_RESULT = [
 
 @lru_cache
 def _get_site_id(site_slug: str) -> int:
-    """Заглушка для получения id сайта по его slug"""
+    """Заглушка для получения id сайта по его slug."""
     site_id = {
         "dm-akronsk": 2,
         "dm-albany": 3,
@@ -44,9 +43,7 @@ def _get_site_id(site_slug: str) -> int:
 
 @lru_cache
 def _get_device_role_id(device_role_slug: str) -> int:
-    """
-    Заглушка для получения id роли устройства по её slug.
-    """
+    """Заглушка для получения id роли устройства по её slug."""
     device_role_id = {
         "router": 1,
         "core-switch": 2,
@@ -105,25 +102,21 @@ def craft_nb_query(request_params: dict[str, str]) -> list[tuple[str, str | int]
     if len(request_params) == 0:
         raise ValueError("отсутствуют параметры запроса")
 
+    func_map = {
+        "name": lambda item: ("name__ie", item.lower()),
+        "site": lambda item: ("site_id", _get_site_id(item)),
+        "role": lambda item: ("role_id", _get_device_role_id(item)),
+        "manufacturer": lambda item: ("manufacturer_id", _get_manufacturer_id(item)),
+        "status": lambda item: ("status", item),
+    }
+
     q = []
     for item_type, items in request_params.items():
-        if item_type == "name":
-            for item in items:
-                q.append(("name__ie", item.lower()))
-        elif item_type == "site":
-            for item in items:
-                q.append(("site_id", _get_site_id(item)))
-        elif item_type == "role":
-            for item in items:
-                q.append(("role_id", _get_device_role_id(item)))
-        elif item_type == "manufacturer":
-            for item in items:
-                q.append(("manufacturer_id", _get_manufacturer_id(item)))
-        elif item_type == "status":
-            for item in items:
-                q.append(("status", item))
-        else:
+        func = func_map.get(item_type)
+        if func is None:
             raise ValueError("неизвестный тип параметра")
+        for item in items:
+            q.append(func(item))
 
     q.append(("brief", "true"))
     q.append(("limit", 500))
